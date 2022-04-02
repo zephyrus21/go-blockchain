@@ -157,11 +157,23 @@ func getBlockchain(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	BlockChain = NewBlockchain()
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", getBlockchain).Methods("GET")
 	r.HandleFunc("/", writeBlock).Methods("POST")
 	r.HandleFunc("/new", newBook).Methods("POST")
+
+	go func() {
+		for _, block := range BlockChain.blocks {
+			fmt.Printf("Prev. hash: %x\n", block.PrevHash)
+			bytes, _ := json.MarshalIndent(block.Data, "", " ")
+			fmt.Printf("Data: %v\n", string(bytes))
+			fmt.Printf("Hash: %x\n", block.Hash)
+			fmt.Println()
+		}
+	}()
 
 	log.Println("Server started on: http://localhost:8000")
 
